@@ -1,5 +1,6 @@
 import React from 'react';
 import "./Draft2.css";
+import useNoRenderRef from './useNoRenderRef';
 
 type Track = {
 	name: string,
@@ -13,6 +14,7 @@ const Draft2 = () => {
 	const [beatInterval,setBeatInterval] = React.useState<NodeJS.Timer>();
 	const [activeBeat, setActiveBeat] = React.useState<number|undefined>(undefined);
 	const [beatDurationInMS,setBeatDurationInMS] = React.useState<number>(500);
+	const beatIntervalNoRenderRef = useNoRenderRef(beatInterval);
 	const [tracks, setTracks] = React.useState<Track[]>([
 		{
 			name:'kick'   ,
@@ -36,24 +38,6 @@ const Draft2 = () => {
 		}
 	]);
 
-	const stepTheBeat = () => 
-		setActiveBeat((ab: number | undefined) => {
-			let b = ab === undefined ? 0 : ab + 1;
-			if(b >= beatCount){ b = 0 };
-			return b;
-		});
-
-	React.useEffect(() => {
-		if(beatInterval !== undefined){
-			clearInterval(beatInterval);
-		}
-		if(playing){
-			setBeatInterval(setInterval(stepTheBeat, beatDurationInMS));
-		} else {
-			setBeatInterval(undefined);
-		}
-	}, [playing,beatDurationInMS]);
-
 	const playTracksForActiveBeat = React.useCallback(() => {
 		if(activeBeat === undefined){
 			console.log('no active beat');
@@ -71,9 +55,30 @@ const Draft2 = () => {
 		}
 	}, [activeBeat,tracks]);
 
+	const playTracksForActiveBeatNoRenderRef = useNoRenderRef(playTracksForActiveBeat);
+
+	const stepTheBeat = () => 
+		setActiveBeat((ab: number | undefined) => {
+			let b = ab === undefined ? 0 : ab + 1;
+			if(b >= beatCount){ b = 0 };
+			return b;
+		});
+
 	React.useEffect(() => {
-		playTracksForActiveBeat();
-	}, [activeBeat])
+		let beatInterval = beatIntervalNoRenderRef.current;
+		if(beatInterval !== undefined){
+			clearInterval(beatInterval);
+		}
+		if(playing){
+			setBeatInterval(setInterval(stepTheBeat, beatDurationInMS));
+		} else {
+			setBeatInterval(undefined);
+		}
+	}, [playing,beatDurationInMS,beatIntervalNoRenderRef]);
+
+	React.useEffect(() => {
+		playTracksForActiveBeatNoRenderRef.current();
+	}, [activeBeat,playTracksForActiveBeatNoRenderRef])
 
 	return <div style={{textAlign:'left', margin:'1em'}}>
 		<div style={{marginBottom:'1em'}}>
