@@ -1,0 +1,27 @@
+.track-name {
+	display:inline-block;
+	text-align: right;
+	width:10em;
+	padding-right:1em;
+}
+.slot {
+	margin: 5px;
+	display: inline-block;
+	width:2em;
+	height:2em;
+	border:1px solid white;
+}
+
+.slot.slot-active{
+	background:green;
+}
+.slot.slot-inactive{
+	background:#dddddd;
+}
+
+.slot.slot-playing {
+	box-shadow: 
+		0px  0px 0px 5px #3366ff
+	, 0px  5px 0px 5px #3366ff
+	, 0px -5px 0px 5px #3366ff
+}
